@@ -1,0 +1,46 @@
+services:
+  # Service 1 : La base de données PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: uptime-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: uptime_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Service 2 : Le dashboard Flask
+  web:
+    build: .
+    container_name: uptime-web
+    command: python app.py
+    ports:
+      - "5001:5000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/uptime_db
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Service 3 : Le worker d'arrière-plan (checker)
+  checker:
+    build: .
+    container_name: uptime-checker
+    command: python checker.py
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/uptime_db
+      - CHECK_INTERVAL=30
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
