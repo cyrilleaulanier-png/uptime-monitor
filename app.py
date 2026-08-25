@@ -1,7 +1,11 @@
 import os
+import threading
 from flask import Flask, render_template
 import psycopg2
 from psycopg2.extras import RealDictCursor
+
+# Importer la fonction de vérification depuis checker.py
+from checker import run_monitoring_loop
 
 app = Flask(__name__)
 
@@ -17,14 +21,11 @@ def get_db_connection():
 @app.route("/")
 def dashboard():
   try:
-    # 1. Dernier statut de chaque site
     query_latest = """
             SELECT DISTINCT ON (site) site, statut, latence_ms, verifie_le
             FROM checks
             ORDER BY site, verifie_le DESC;
         """
-
-    # 2. Métriques globales
     query_stats = """
             SELECT 
                 site,
@@ -34,8 +35,6 @@ def dashboard():
             FROM checks
             GROUP BY site;
         """
-
-    # 3. 10 dernières vérifications
     query_recent = """
             SELECT site, statut, latence_ms, verifie_le
             FROM checks
@@ -73,16 +72,21 @@ def dashboard():
     )
 
   except Exception as e:
-    # Si la table n'existe pas encore ou que la BDD est en cours d'initialisation
     return f"""
         <div style="font-family: sans-serif; padding: 40px; text-align: center;">
             <h2>🚀 Le Dashboard Ops est en cours de démarrage...</h2>
-            <p>La base de données est en train de recevoir ses premières mesures.</p>
-            <p><code>Détail : {e}</code></p>
-            <p>👉 <b>Rafraîchis la page (F5) dans 10 secondes.</b></p>
+            <p>Détail : {e}</p>
         </div>
         """, 200
 
+
+# Lancer le worker checker en tâche de fond au démarrage
+def start_background_checker():
+  thread = threading.Thread(target=run_monitoring_loop, daemon=True)
+  thread.start()
+
+
+start_background_checker()
 
 if __name__ == "__main__":
   app.run(host="0.0.0.0", port=5000, debug=True)
