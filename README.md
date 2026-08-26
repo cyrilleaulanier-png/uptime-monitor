@@ -1,34 +1,38 @@
 # 📊 Uptime Monitor & Ops Dashboard
 
-Un outil de supervision d'uptime léger, conteneurisé et déployé sur le Cloud pour vérifier la disponibilité et la latence de services web en temps réel.
+A lightweight, containerized uptime monitoring tool deployed to the Cloud to track the availability and latency of web services in real time.
 
-🌐 **Démo en ligne :** (https://uptime-monitor-3.onrender.com)
-
----
-
-## 🚀 Fonctionnalités
-- 🟢 **Monitoring continu :** Vérification automatique de l'état HTTP et de la latence (ms) des sites cibles.
-- ➕ **Gestion dynamique :** Ajout et suppression d'URL à surveiller en direct depuis le Dashboard.
-- 📈 **Statistiques en direct :** Calcul automatique du taux de disponibilité (% Uptime) et de la latence moyenne.
-- 🐳 **Prêt pour la production :** Déploiement entièrement conteneurisé avec Docker Compose.
-- 🔄 **Pipeline CI/CD :** Validation automatique du code via GitHub Actions et déploiement continu sur Render.
+🌐 **Live Demo:** (https://uptime-monitor-3.onrender.com)
 
 ---
 
-## 🛠️ Stack Technique
-* **Backend :** Python 3.11, Flask, Requests, Threading
-* **Base de données :** PostgreSQL (`psycopg2`)
-* **Conteneurisation :** Docker, Docker Compose
-* **Automation & Cloud :** GitHub Actions (CI), Render (CD / PaaS)
+## 🚀 Features
+- 🟢 **Continuous Monitoring:** Automatic checks for HTTP status and latency (ms) of targeted websites.
+- ➕ **Dynamic Management:** Add and delete URLs to monitor directly from the Dashboard interface.
+- 📈 **Live Analytics:** Automated calculation of availability rate (% Uptime) and average response time.
+- 🐳 **Production-Ready:** Fully containerized setup using Docker Compose.
+- 🔄 **CI/CD Pipeline:** Automated syntax checks via GitHub Actions and continuous deployment on Render.
 
 ---
 
-## 💻 Installation & Lancement en local
+## 🛠️ Tech Stack
+* **Backend:** Python 3.11, Flask, Requests, Threading
+* **Database:** PostgreSQL (`psycopg2`)
+* **Containerization:** Docker, Docker Compose
+* **Automation & Cloud:** GitHub Actions (CI), Render (CD / PaaS)
 
-### Prérequis
-- [Docker Desktop](https://www.docker.com/) installé et lancé.
+---
 
-### Étape 1 : Cloner le dépôt
+## 💻 Local Installation & Setup
+
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/) installed and running.
+
+### Step 1: Clone the repository
 ```bash
 git clone [https://github.com/cyrilleaulanier-png/uptime-monitor.git](https://github.com/cyrilleaulanier-png/uptime-monitor.git)
 cd uptime-monitor
+
+### Step 2: Run with Docker Compose
+```bash
+docker compose up -d --build
