@@ -3,69 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ops Uptime Dashboard</title>
+    <title>Dashboard Uptime Monitor Ops</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 30px; background-color: #f4f6f8; color: #333; }
-        h1 { margin-bottom: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 6px solid #ccc; }
-        .card.en-ligne { border-left-color: #2ecc71; }
-        .card.injoignable, .card.probleme { border-left-color: #e74c3c; }
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; text-transform: uppercase; }
-        .badge.en-ligne { background: #e8f8f5; color: #27ae60; }
-        .badge.injoignable, .badge.probleme { background: #fadbd8; color: #c0392b; }
-        .metrics { margin-top: 15px; font-size: 0.9em; color: #666; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        body { font-family: Arial, sans-serif; background: #f9fafe; margin: 0; padding: 20px; color: #333; }
+        h1, h2, h3 { color: #2c3e50; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        /* Formulaire d'ajout */
+        .add-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .form-group { display: flex; gap: 10px; }
+        .input-url { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+        .btn-add { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .btn-add:hover { background: #218838; }
+
+        /* Cartes de statut */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; color: white; }
+        .online { background: #28a745; }
+        .offline { background: #dc3545; }
+        .waiting { background: #ffc107; color: #333; }
+        
+        /* Bouton supprimer */
+        .btn-delete { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; width: 100%; }
+        .btn-delete:hover { background: #c82333; }
+
+        /* Historique */
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #eaecee; font-weight: 600; }
+        th { background: #f4f4f9; }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>📊 Dashboard Uptime Monitor</h1>
 
-    <h1>🚀 Status Dashboard</h1>
-
-    <div class="grid">
-        {% for card in cards %}
-        <div class="card {% if card.statut == 'en ligne' %}en-ligne{% else %}probleme{% endif %}">
-            <h3>{{ card.site }}</h3>
-            <span class="badge {% if card.statut == 'en ligne' %}en-ligne{% else %}probleme{% endif %}">
-                {{ card.statut }}
-            </span>
-            <div class="metrics">
-                <p><strong>Uptime :</strong> {{ card.uptime_percent }}%</p>
-                <p><strong>Latence actuelle :</strong> {{ card.latence_ms }} ms</p>
-                <p><strong>Latence moy. :</strong> {{ card.avg_latency_ms }} ms</p>
-                <p><small>Dernier check : {{ card.verifie_le.strftime('%Y-%m-%d %H:%M:%S') }}</small></p>
-            </div>
+        <!-- Formulaire d'ajout de site -->
+        <div class="add-card">
+            <h3>➕ Ajouter un nouveau site à surveiller</h3>
+            <form action="/add_site" method="POST" class="form-group">
+                <input type="url" name="url" placeholder="https://exemple.com" required class="input-url">
+                <button type="submit" class="btn-add">Ajouter</button>
+            </form>
         </div>
-        {% endfor %}
-    </div>
 
-    <h2>Historique récent</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Horodatage</th>
-                <th>Site</th>
-                <th>Statut</th>
-                <th>Latence</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in history %}
-            <tr>
-                <td>{{ row.verifie_le.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                <td>{{ row.site }}</td>
-                <td>
-                    <span class="badge {% if row.statut == 'en ligne' %}en-ligne{% else %}probleme{% endif %}">
-                        {{ row.statut }}
-                    </span>
-                </td>
-                <td>{{ row.latence_ms }} ms</td>
-            </tr>
+        <!-- Cartes de statut des sites -->
+        <h2>État des services</h2>
+        <div class="grid">
+            {% for card in cards %}
+            <div class="card">
+                <div>
+                    <h3>{{ card.site }}</h3>
+                    <p>
+                        Statut : 
+                        {% if card.statut == 'en ligne' %}
+                            <span class="status-badge online">En ligne</span>
+                        {% elif card.statut == 'En attente...' %}
+                            <span class="status-badge waiting">En attente</span>
+                        {% else %}
+                            <span class="status-badge offline">{{ card.statut }}</span>
+                        {% endif %}
+                    </p>
+                    <p>⚡ Latence : <strong>{{ card.latence_ms }} ms</strong></p>
+                    <p>📈 Uptime : <strong>{{ card.uptime_percent }} %</strong></p>
+                    <p><small>Dernière vérification : {{ card.verifie_le }}</small></p>
+                </div>
+
+                <!-- PARAGRAPHE DU BOUTON SUPPRIMER -->
+                <form action="/delete_site" method="POST" style="margin-top: 15px;">
+                    <input type="hidden" name="url" value="{{ card.site }}">
+                    <button type="submit" onclick="return confirm('Supprimer ce site et son historique ?')" class="btn-delete">
+                        🗑️ Supprimer ce site
+                    </button>
+                </form>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
 
+        <!-- Historique récent -->
+        <h2>Dernières vérifications</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Site</th>
+                    <th>Statut</th>
+                    <th>Latence</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in history %}
+                <tr>
+                    <td>{{ log.site }}</td>
+                    <td>{{ log.statut }}</td>
+                    <td>{{ log.latence_ms }} ms</td>
+                    <td>{{ log.verifie_le }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
