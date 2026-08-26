@@ -32,7 +32,9 @@ A lightweight, containerized uptime monitoring tool deployed to the Cloud to tra
 ```bash
 git clone [https://github.com/cyrilleaulanier-png/uptime-monitor.git](https://github.com/cyrilleaulanier-png/uptime-monitor.git)
 cd uptime-monitor
+```
 
 ### Step 2: Run with Docker Compose
 ```bash
 docker compose up -d --build
+```
